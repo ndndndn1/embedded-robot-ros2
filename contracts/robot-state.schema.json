@@ -1,0 +1,119 @@
+{
+  "$defs": {
+    "HardwareSafetyState": {
+      "enum": [
+        "normal",
+        "estop_engaged"
+      ],
+      "title": "HardwareSafetyState",
+      "type": "string"
+    },
+    "Pose2D": {
+      "additionalProperties": false,
+      "properties": {
+        "frame": {
+          "default": "map",
+          "pattern": "^[A-Za-z][A-Za-z0-9_/]{0,63}$",
+          "title": "Frame",
+          "type": "string"
+        },
+        "x_m": {
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "X M",
+          "type": "number"
+        },
+        "y_m": {
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Y M",
+          "type": "number"
+        },
+        "yaw_rad": {
+          "maximum": 3.141593,
+          "minimum": -3.141593,
+          "title": "Yaw Rad",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x_m",
+        "y_m",
+        "yaw_rad"
+      ],
+      "title": "Pose2D",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "active_command_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Active Command Id"
+    },
+    "contract_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "hardware_safety_state": {
+      "$ref": "#/$defs/HardwareSafetyState"
+    },
+    "joint_positions_rad": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Joint Positions Rad",
+      "type": "array"
+    },
+    "observed_at": {
+      "format": "date-time",
+      "title": "Observed At",
+      "type": "string"
+    },
+    "pose": {
+      "$ref": "#/$defs/Pose2D"
+    },
+    "product_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "title": "Product Id",
+      "type": "string"
+    },
+    "robot_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "title": "Robot Id",
+      "type": "string"
+    },
+    "software_protective_stop": {
+      "title": "Software Protective Stop",
+      "type": "boolean"
+    },
+    "state_version": {
+      "minimum": 0,
+      "title": "State Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "robot_id",
+    "product_id",
+    "state_version",
+    "observed_at",
+    "pose",
+    "joint_positions_rad",
+    "hardware_safety_state",
+    "software_protective_stop"
+  ],
+  "title": "RobotState",
+  "type": "object"
+}

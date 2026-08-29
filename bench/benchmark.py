@@ -3,9 +3,10 @@ import argparse
 import asyncio
 import statistics
 import time
+from datetime import timedelta
 
 from embedded_robot_ros2.mock_graph import MockRosGraph
-from embedded_robot_ros2.models import CommandRequest
+from embedded_robot_ros2.models import CommandRequest, now_utc
 from embedded_robot_ros2.service import RobotEdgeService
 
 
@@ -16,16 +17,24 @@ async def benchmark(iterations: int) -> None:
     timings: list[float] = []
     try:
         for index in range(iterations):
-            version = service.state("MM-01").state_version
+            version = service.state("mm-01-a").state_version
+            now = now_utc()
             request = CommandRequest.model_validate(
                 {
                     "command_id": f"bench-{index}",
-                    "robot_id": "MM-01",
-                    "kind": "navigate",
-                    "ttl_ms": 500,
+                    "robot_id": "mm-01-a",
+                    "issued_at": now.isoformat(),
+                    "expires_at": (now + timedelta(seconds=1)).isoformat(),
                     "expected_state_version": version,
-                    "payload": {
-                        "pose": {"frame_id": "map", "x": index % 10, "y": 0, "yaw": 0}
+                    "action": {
+                        "type": "navigate",
+                        "target": {
+                            "frame": "map",
+                            "x_m": index % 10,
+                            "y_m": 0,
+                            "yaw_rad": 0,
+                        },
+                        "max_speed_mps": 0.5,
                     },
                 }
             )
@@ -49,4 +58,3 @@ if __name__ == "__main__":
     parser.add_argument("--iterations", type=int, default=1000)
     args = parser.parse_args()
     asyncio.run(benchmark(args.iterations))
-

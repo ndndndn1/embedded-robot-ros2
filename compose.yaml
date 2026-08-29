@@ -1,6 +1,9 @@
 services:
   adapter:
-    build: .
+    build:
+      context: .
+      target: runtime
+    image: embedded-robot-ros2:local
     ports:
       - "127.0.0.1:8080:8080"
     read_only: true
@@ -17,4 +20,24 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
+      start_period: 5s
+
+  test:
+    profiles:
+      - test
+    build:
+      context: .
+      target: test
+    image: embedded-robot-ros2:test
+    command: ["python", "-m", "pytest", "-p", "no:cacheprovider"]
+    network_mode: none
+    read_only: true
+    user: "65532:65532"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    restart: "no"
 

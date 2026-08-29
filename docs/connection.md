@@ -7,10 +7,10 @@ NIC to an isolated, non-routed OT VLAN. Assign fixed addresses from an installat
 specific subnet; do not bridge the OT VLAN to office Wi-Fi or the public Internet.
 Only required DDS discovery/data traffic and vendor traffic may cross an allow-list.
 
-1. Verify the product profile (`MH-01` humanoid or `MM-01` mobile manipulator) and
+1. Verify the product (`mock-humanoid-mh-01` or `mock-mobile-manipulator-mm-01`) and
    compare advertised capabilities with the physical controller in a safe cell.
 2. Set a unique `ROS_DOMAIN_ID` in the inclusive range 0–232 for that cell.
-3. Use the exact namespace `/<robot_id>` and enable DDS localhost-only or discovery
+3. Use the exact instance namespace `/mh-01-a` or `/mm-01-a` and enable DDS localhost-only or discovery
    server mode unless multi-host discovery is required.
 4. Map `JointState`, `NavigateToPose`, `FollowJointTrajectory`, and the deployment's
    typed `SafetyState` to `RclpyTransport`; never map a boolean or free-form string to

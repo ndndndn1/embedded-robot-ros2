@@ -4,35 +4,46 @@ import json
 from pathlib import Path
 from typing import TypedDict
 
+REQUIRED_GATES = {"tests", "runtime_smoke", "memory", "security", "docs_examples"}
+
 
 class Category(TypedDict):
-    name: str
-    weight: int
-    score: int
+    id: str
+    max: int
+    earned: int
     evidence: list[str]
 
 
 class Scorecard(TypedDict):
-    threshold: int
+    schema_version: str
+    target: int
+    score: int
     categories: list[Category]
+    hard_gates: dict[str, bool]
 
 
 def check(root: Path) -> tuple[int, list[str]]:
     scorecard: Scorecard = json.loads((root / "quality" / "scorecard.json").read_text())
     failures: list[str] = []
-    total_weight = sum(item["weight"] for item in scorecard["categories"])
-    total_score = sum(item["score"] for item in scorecard["categories"])
-    if total_weight != 100:
-        failures.append(f"weights total {total_weight}, expected 100")
+    if scorecard.get("schema_version") != "1.0":
+        failures.append("schema_version must be 1.0")
+    maximum = sum(item["max"] for item in scorecard["categories"])
+    score = sum(item["earned"] for item in scorecard["categories"])
+    if maximum != 100:
+        failures.append(f"maximum totals {maximum}, expected 100")
+    if scorecard.get("score") != score:
+        failures.append("declared score does not match earned total")
     for item in scorecard["categories"]:
-        if not 0 <= item["score"] <= item["weight"]:
-            failures.append(f"invalid score for {item['name']}")
-        for evidence in item["evidence"]:
-            if not (root / evidence).is_file():
-                failures.append(f"missing evidence: {evidence}")
-    if total_score < scorecard["threshold"]:
-        failures.append(f"score {total_score} below threshold {scorecard['threshold']}")
-    return total_score, failures
+        if not 0 <= item["earned"] <= item["max"]:
+            failures.append(f"invalid score for {item['id']}")
+        if not item["evidence"]:
+            failures.append(f"missing evidence for {item['id']}")
+    if score < scorecard["target"]:
+        failures.append(f"score {score} below target {scorecard['target']}")
+    gates = scorecard.get("hard_gates", {})
+    if set(gates) != REQUIRED_GATES or not all(gates.values()):
+        failures.append("hard gates are incomplete or false")
+    return score, failures
 
 
 def main() -> None:

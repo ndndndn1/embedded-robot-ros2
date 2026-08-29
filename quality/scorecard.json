@@ -1,11 +1,20 @@
 {
-  "threshold": 80,
+  "schema_version": "1.0",
+  "target": 80,
+  "score": 92,
   "categories": [
-    {"name": "functional_correctness", "weight": 25, "score": 23, "evidence": ["tests/test_service.py", "tests/test_api.py"]},
-    {"name": "interface_usability", "weight": 20, "score": 19, "evidence": ["contracts/physical-robot-command.v1.schema.json", "README.md"]},
-    {"name": "reliability_safety", "weight": 20, "score": 18, "evidence": ["tests/test_service.py", "docs/connection.md"]},
-    {"name": "verification_performance", "weight": 15, "score": 13, "evidence": ["bench/benchmark.py", "bench/soak.py", "docs/benchmark.md"]},
-    {"name": "security_supply_chain", "weight": 10, "score": 9, "evidence": ["Dockerfile", "compose.yaml"]},
-    {"name": "documentation_operations", "weight": 10, "score": 10, "evidence": ["docs/enterprise-requirements.md", "docs/connection.md"]}
-  ]
+    {"id": "functional_correctness", "max": 25, "earned": 23, "evidence": ["canonical physical lifecycle, catalog and state tests", "deterministic ROS goal mapping"]},
+    {"id": "interface_usability", "max": 20, "earned": 19, "evidence": ["four byte-pinned Physical Robot Interface 1.0.0 schemas", "OpenAPI and copyable examples"]},
+    {"id": "reliability_safety", "max": 20, "earned": 18, "evidence": ["expiration, cancellation, reconnect epoch and duplicate sequence tests", "software stop distinct from hardware E-stop"]},
+    {"id": "verification_performance", "max": 15, "earned": 13, "evidence": ["pytest, strict mypy and Ruff", "benchmark and allocation soak"]},
+    {"id": "security_supply_chain", "max": 10, "earned": 9, "evidence": ["non-root read-only capability-free containers", "locked Python dependencies"]},
+    {"id": "documentation_operations", "max": 10, "earned": 10, "evidence": ["product, OT VLAN, ROS domain, namespace and recovery guides", "localhost runtime smoke"]}
+  ],
+  "hard_gates": {
+    "tests": true,
+    "runtime_smoke": true,
+    "memory": true,
+    "security": true,
+    "docs_examples": true
+  }
 }

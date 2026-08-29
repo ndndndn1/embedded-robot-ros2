@@ -4,14 +4,15 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Protocol
 
-from .models import CommandPhase, JointState, Pose, SafetyState, TrajectoryPoint
+from .models import CommandStatus, JointState, Pose2D, RosSafetyState
 
 
 @dataclass(frozen=True, slots=True)
 class NavigateGoal:
     command_id: str
     robot_id: str
-    pose: Pose
+    pose: Pose2D
+    max_speed_mps: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -19,20 +20,22 @@ class TrajectoryGoal:
     command_id: str
     robot_id: str
     joint_names: tuple[str, ...]
-    points: tuple[TrajectoryPoint, ...]
+    joint_positions_rad: tuple[float, ...]
+    max_force_n: float
 
 
 @dataclass(frozen=True, slots=True)
 class ActionUpdate:
     command_id: str
     sequence: int
-    phase: CommandPhase
+    phase: CommandStatus
     message: str
+    error_code: str | None = None
 
 
 ActionCallback = Callable[[ActionUpdate], Awaitable[None]]
 JointCallback = Callable[[JointState], Awaitable[None]]
-SafetyCallback = Callable[[SafetyState], Awaitable[None]]
+SafetyCallback = Callable[[RosSafetyState], Awaitable[None]]
 
 
 class RosTransport(Protocol):
@@ -57,4 +60,3 @@ class RosTransport(Protocol):
     async def software_protective_stop(self, robot_id: str, reason: str) -> None: ...
 
     async def close(self) -> None: ...
-

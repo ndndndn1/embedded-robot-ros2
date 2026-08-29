@@ -1,9 +1,12 @@
 {
-  "contract_version": "physical-robot-command.v1",
+  "contract_version": "1.0.0",
+  "source": "physical-robot-interface commit 9c204cc",
   "canonicalization": "repository bytes as committed",
   "sha256": {
-    "physical-robot-command.v1.schema.json": "40810182a9cf47d337fb6ecb6a78afc5651cbd390ce00757b1519c12ff888d3b",
-    "physical-robot-status.v1.schema.json": "85931d768aa9c8b31a9caed80c8e8be8deeb98367a5a9455f12311a077da2055"
+    "command-record.schema.json": "e51b897dcb888050f6522b65356642a8df852b30d4c661bb404c7ac95926c94a",
+    "command-request.schema.json": "6bf9236a057c888b248455fca06cf6ce3d7eb01e5542327376cf02ba80ea72cb",
+    "product-profile.schema.json": "0504df713e8a3a623c31a6d6dd4a2feb1a21354bccff50f137ac3c9f397c7e13",
+    "robot-state.schema.json": "48f59c48e13d5c6b616ff49f3d72b5eef2bbb94ef2905b20119876407a27cc1c"
   }
 }
 

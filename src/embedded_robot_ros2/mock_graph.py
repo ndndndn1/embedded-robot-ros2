@@ -5,7 +5,7 @@ from collections.abc import Coroutine
 from datetime import UTC, datetime
 from typing import Any
 
-from .models import CommandPhase, JointState, SafetyLevel, SafetyState
+from .models import CommandStatus, JointState, RosSafetyLevel, RosSafetyState
 from .ports import (
     ActionCallback,
     ActionUpdate,
@@ -14,7 +14,7 @@ from .ports import (
     SafetyCallback,
     TrajectoryGoal,
 )
-from .profiles import PROFILES
+from .profiles import ROBOTS
 
 
 class MockRosGraph:
@@ -50,13 +50,13 @@ class MockRosGraph:
         self._safety_callback = on_safety
         self._connection_epoch += 1
         self._connected = True
-        for robot_id, profile in PROFILES.items():
+        for robot_id, profile in ROBOTS.items():
             self._sequence += 1
             await on_safety(
-                SafetyState(
+                RosSafetyState(
                     robot_id=robot_id,
                     sequence=self._sequence,
-                    level=SafetyLevel.OPERATIONAL,
+                    level=RosSafetyLevel.NORMAL,
                     reason="mock transport connected",
                     stamp=datetime.now(UTC),
                 )
@@ -77,13 +77,13 @@ class MockRosGraph:
             return
         self._connected = False
         if self._safety_callback:
-            for robot_id in PROFILES:
+            for robot_id in ROBOTS:
                 self._sequence += 1
                 await self._safety_callback(
-                    SafetyState(
+                    RosSafetyState(
                         robot_id=robot_id,
                         sequence=self._sequence,
-                        level=SafetyLevel.DISCONNECTED,
+                        level=RosSafetyLevel.DISCONNECTED,
                         reason="ROS graph disconnected",
                         stamp=datetime.now(UTC),
                     )
@@ -106,7 +106,7 @@ class MockRosGraph:
         self._cancelled.add(command_id)
         if self._action_callback:
             await self._action_callback(
-                ActionUpdate(command_id, 99, CommandPhase.CANCELLED, "cancel acknowledged")
+                ActionUpdate(command_id, 99, CommandStatus.CANCELLED, "cancel acknowledged")
             )
 
     async def software_protective_stop(self, robot_id: str, reason: str) -> None:
@@ -114,10 +114,10 @@ class MockRosGraph:
         if self._safety_callback:
             self._sequence += 1
             await self._safety_callback(
-                SafetyState(
+                RosSafetyState(
                     robot_id=robot_id,
                     sequence=self._sequence,
-                    level=SafetyLevel.PROTECTIVE_STOP,
+                    level=RosSafetyLevel.NORMAL,
                     reason=reason,
                     stamp=datetime.now(UTC),
                 )
@@ -137,14 +137,14 @@ class MockRosGraph:
 
     async def _run_action(self, command_id: str, message: str, epoch: int) -> None:
         assert self._action_callback is not None
-        await self._action_callback(ActionUpdate(command_id, 1, CommandPhase.RUNNING, "running"))
+        await self._action_callback(ActionUpdate(command_id, 1, CommandStatus.RUNNING, "running"))
         await asyncio.sleep(self._action_delay_s)
         if (
             command_id not in self._cancelled
             and self._connected
             and epoch == self._connection_epoch
         ):
-            update = ActionUpdate(command_id, 2, CommandPhase.COMPLETED, message)
+            update = ActionUpdate(command_id, 2, CommandStatus.COMPLETED, message)
             await self._action_callback(update)
             await self._action_callback(update)  # deterministic duplicate DDS delivery
 

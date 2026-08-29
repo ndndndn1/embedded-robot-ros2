@@ -1,0 +1,274 @@
+{
+  "$defs": {
+    "CommandRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "discriminator": {
+            "mapping": {
+              "manipulate": "#/$defs/ManipulateAction",
+              "navigate": "#/$defs/NavigateAction",
+              "protective_stop": "#/$defs/ProtectiveStopAction"
+            },
+            "propertyName": "type"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/NavigateAction"
+            },
+            {
+              "$ref": "#/$defs/ManipulateAction"
+            },
+            {
+              "$ref": "#/$defs/ProtectiveStopAction"
+            }
+          ],
+          "title": "Action"
+        },
+        "command_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+          "title": "Command Id",
+          "type": "string"
+        },
+        "contract_version": {
+          "const": "1.0.0",
+          "default": "1.0.0",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "expected_state_version": {
+          "minimum": 0,
+          "title": "Expected State Version",
+          "type": "integer"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        },
+        "issued_at": {
+          "format": "date-time",
+          "title": "Issued At",
+          "type": "string"
+        },
+        "robot_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+          "title": "Robot Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_id",
+        "robot_id",
+        "issued_at",
+        "expires_at",
+        "expected_state_version",
+        "action"
+      ],
+      "title": "CommandRequest",
+      "type": "object"
+    },
+    "CommandStatus": {
+      "enum": [
+        "submitted",
+        "accepted",
+        "rejected",
+        "running",
+        "completed",
+        "failed",
+        "cancelled"
+      ],
+      "title": "CommandStatus",
+      "type": "string"
+    },
+    "CommandTransition": {
+      "additionalProperties": false,
+      "properties": {
+        "detail": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "title": "Occurred At",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/CommandStatus"
+        }
+      },
+      "required": [
+        "status",
+        "occurred_at"
+      ],
+      "title": "CommandTransition",
+      "type": "object"
+    },
+    "ManipulateAction": {
+      "additionalProperties": false,
+      "properties": {
+        "joint_positions_rad": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Joint Positions Rad",
+          "type": "array"
+        },
+        "max_force_n": {
+          "default": 30,
+          "exclusiveMinimum": 0,
+          "maximum": 250,
+          "title": "Max Force N",
+          "type": "number"
+        },
+        "type": {
+          "const": "manipulate",
+          "default": "manipulate",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "joint_positions_rad"
+      ],
+      "title": "ManipulateAction",
+      "type": "object"
+    },
+    "NavigateAction": {
+      "additionalProperties": false,
+      "properties": {
+        "max_speed_mps": {
+          "default": 0.5,
+          "exclusiveMinimum": 0,
+          "maximum": 2.0,
+          "title": "Max Speed Mps",
+          "type": "number"
+        },
+        "target": {
+          "$ref": "#/$defs/Pose2D"
+        },
+        "type": {
+          "const": "navigate",
+          "default": "navigate",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "title": "NavigateAction",
+      "type": "object"
+    },
+    "Pose2D": {
+      "additionalProperties": false,
+      "properties": {
+        "frame": {
+          "default": "map",
+          "pattern": "^[A-Za-z][A-Za-z0-9_/]{0,63}$",
+          "title": "Frame",
+          "type": "string"
+        },
+        "x_m": {
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "X M",
+          "type": "number"
+        },
+        "y_m": {
+          "maximum": 10000,
+          "minimum": -10000,
+          "title": "Y M",
+          "type": "number"
+        },
+        "yaw_rad": {
+          "maximum": 3.141593,
+          "minimum": -3.141593,
+          "title": "Yaw Rad",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x_m",
+        "y_m",
+        "yaw_rad"
+      ],
+      "title": "Pose2D",
+      "type": "object"
+    },
+    "ProtectiveStopAction": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "type": {
+          "const": "protective_stop",
+          "default": "protective_stop",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "title": "ProtectiveStopAction",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "error_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Code"
+    },
+    "request": {
+      "$ref": "#/$defs/CommandRequest"
+    },
+    "status": {
+      "$ref": "#/$defs/CommandStatus"
+    },
+    "transitions": {
+      "items": {
+        "$ref": "#/$defs/CommandTransition"
+      },
+      "title": "Transitions",
+      "type": "array"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request",
+    "status",
+    "transitions",
+    "updated_at"
+  ],
+  "title": "CommandRecord",
+  "type": "object"
+}

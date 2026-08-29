@@ -1,0 +1,61 @@
+{
+  "$defs": {
+    "CommandType": {
+      "enum": [
+        "navigate",
+        "manipulate",
+        "protective_stop"
+      ],
+      "title": "CommandType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "capabilities": {
+      "items": {
+        "$ref": "#/$defs/CommandType"
+      },
+      "title": "Capabilities",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "classification": {
+      "title": "Classification",
+      "type": "string"
+    },
+    "connection_interface": {
+      "title": "Connection Interface",
+      "type": "string"
+    },
+    "joint_count": {
+      "maximum": 16,
+      "minimum": 1,
+      "title": "Joint Count",
+      "type": "integer"
+    },
+    "model_name": {
+      "title": "Model Name",
+      "type": "string"
+    },
+    "product_id": {
+      "title": "Product Id",
+      "type": "string"
+    },
+    "product_name": {
+      "title": "Product Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "product_id",
+    "classification",
+    "product_name",
+    "model_name",
+    "capabilities",
+    "joint_count",
+    "connection_interface"
+  ],
+  "title": "ProductProfile",
+  "type": "object"
+}

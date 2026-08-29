@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "requirements": [
+    {"requirement_id": "FUNC-01", "kind": "required", "technical": true, "coverage": "full", "evidence": ["src/embedded_robot_ros2/profiles.py", "src/embedded_robot_ros2/service.py"], "tests": ["tests/test_service.py::test_products_and_robot_states_match_canonical_profiles"]},
+    {"requirement_id": "FUNC-02", "kind": "required", "technical": true, "coverage": "full", "evidence": ["src/embedded_robot_ros2/service.py", "src/embedded_robot_ros2/ports.py"], "tests": ["tests/test_service.py::test_navigation_maps_to_action_and_drops_duplicate_status", "tests/test_service.py::test_manipulation_updates_canonical_joint_state"]},
+    {"requirement_id": "INTF-01", "kind": "required", "technical": true, "coverage": "full", "evidence": ["contracts/manifest.json", "contracts/command-request.schema.json", "contracts/command-record.schema.json"], "tests": ["tests/test_contract.py::test_models_generate_the_same_four_canonical_schemas", "tests/test_contract.py::test_vendored_physical_contract_hashes_are_exact_and_pinned"]},
+    {"requirement_id": "INTF-02", "kind": "required", "technical": true, "coverage": "full", "evidence": ["src/embedded_robot_ros2/rclpy_adapter.py", "docs/connection.md"], "tests": ["tests/test_rclpy_boundary.py::test_rclpy_boundary_binds_exact_names_and_domain"]},
+    {"requirement_id": "REL-01", "kind": "required", "technical": true, "coverage": "full", "evidence": ["src/embedded_robot_ros2/service.py", "src/embedded_robot_ros2/mock_graph.py"], "tests": ["tests/test_service.py::test_disconnect_marks_inflight_unknown_and_old_epoch_cannot_complete", "tests/test_service.py::test_completed_history_is_bounded"]},
+    {"requirement_id": "SAFE-01", "kind": "required", "technical": true, "coverage": "full", "evidence": ["src/embedded_robot_ros2/models.py", "docs/connection.md"], "tests": ["tests/test_service.py::test_protective_stop_is_software_state_not_hardware_estop"]},
+    {"requirement_id": "OPS-01", "kind": "required", "technical": true, "coverage": "full", "evidence": ["Dockerfile", "compose.yaml", "smoke.py"], "tests": ["docker compose run --rm --build test", "python3 smoke.py"]},
+    {"requirement_id": "PERF-01", "kind": "required", "technical": true, "coverage": "full", "evidence": ["bench/benchmark.py", "bench/soak.py", "docs/benchmark.md"], "tests": ["uv run python bench/benchmark.py --iterations 1000", "uv run python bench/soak.py --iterations 5000 --max-growth-kib 12000"]},
+    {"requirement_id": "DOC-01", "kind": "required", "technical": false, "coverage": "full", "evidence": ["README.md", "docs/connection.md", "docs/enterprise-requirements.md"], "tests": ["python3 smoke.py"]}
+  ]
+}
+

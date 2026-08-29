@@ -1,28 +1,45 @@
 from dataclasses import dataclass
 
-from .models import CommandKind
+from .models import CommandType, ProductProfile
+
+PRODUCTS = (
+    ProductProfile(
+        product_id="mock-humanoid-mh-01",
+        classification="industrial_humanoid",
+        product_name="MockHumanoid",
+        model_name="MH-01",
+        capabilities=frozenset(CommandType),
+        joint_count=12,
+        connection_interface="RobotPort REST v1; replace mock with a conforming hardware adapter",
+    ),
+    ProductProfile(
+        product_id="mock-mobile-manipulator-mm-01",
+        classification="autonomous_mobile_manipulator",
+        product_name="MockMobileManipulator",
+        model_name="MM-01",
+        capabilities=frozenset(CommandType),
+        joint_count=6,
+        connection_interface="RobotPort REST v1; replace mock with a conforming hardware adapter",
+    ),
+)
 
 
 @dataclass(frozen=True, slots=True)
 class RobotProfile:
-    product_class: str
-    product_name: str
-    capabilities: frozenset[CommandKind]
+    product_id: str
     joints: tuple[str, ...]
 
 
-PROFILES: dict[str, RobotProfile] = {
-    "MH-01": RobotProfile(
-        product_class="industrial humanoid",
-        product_name="MockHumanoid MH-01",
-        capabilities=frozenset({CommandKind.MANIPULATE, CommandKind.PROTECTIVE_STOP}),
+ROBOTS: dict[str, RobotProfile] = {
+    "mh-01-a": RobotProfile(
+        product_id="mock-humanoid-mh-01",
         joints=tuple(f"joint_{index:02d}" for index in range(1, 13)),
     ),
-    "MM-01": RobotProfile(
-        product_class="mobile manipulator",
-        product_name="MockMobileManipulator MM-01",
-        capabilities=frozenset(CommandKind),
+    "mm-01-a": RobotProfile(
+        product_id="mock-mobile-manipulator-mm-01",
         joints=tuple(f"arm_joint_{index}" for index in range(1, 7)),
     ),
 }
 
+
+PRODUCTS_BY_ID = {product.product_id: product for product in PRODUCTS}
