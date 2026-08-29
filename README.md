@@ -1,5 +1,7 @@
 # embedded-robot-ros2
 
+[![CI](https://github.com/ndndndn1/embedded-robot-ros2/actions/workflows/ci.yml/badge.svg)](https://github.com/ndndndn1/embedded-robot-ros2/actions/workflows/ci.yml)
+
 Vendor-neutral edge adapter between the canonical Physical Robot Interface 1.0.0 HTTP
 wire and ROS 2 Jazzy topic/action semantics. The default runtime uses a deterministic
 in-process ROS graph, so contract, timeout, cancellation, reconnection, and duplicate
@@ -56,4 +58,3 @@ uppercase profile-as-robot IDs, or `/state` route is accepted.
 See [real adapter connection](docs/connection.md),
 [requirements](docs/enterprise-requirements.md), and
 [quality score](docs/quality-scorecard.md) before deployment.
-
