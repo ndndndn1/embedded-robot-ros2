@@ -2,6 +2,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from jsonschema import Draft202012Validator, FormatChecker
+
 from embedded_robot_ros2.models import CommandRequest
 
 ROOT = Path(__file__).parents[1]
@@ -31,3 +33,29 @@ def test_command_model_rejects_unexpected_fields() -> None:
     else:
         raise AssertionError("unexpected fields must fail closed")
 
+
+def test_command_and_status_examples_conform_to_vendored_json_schemas() -> None:
+    command_schema = json.loads(
+        (ROOT / "contracts" / "physical-robot-command.v1.schema.json").read_text()
+    )
+    status_schema = json.loads(
+        (ROOT / "contracts" / "physical-robot-status.v1.schema.json").read_text()
+    )
+    command = {
+        "command_id": "conformance-1",
+        "robot_id": "MM-01",
+        "kind": "navigate",
+        "ttl_ms": 500,
+        "expected_state_version": 2,
+        "payload": {"pose": {"frame_id": "map", "x": 0, "y": 0, "yaw": 0}},
+    }
+    status = {
+        "command_id": "conformance-1",
+        "robot_id": "MM-01",
+        "phase": "completed",
+        "sequence": 2,
+        "message": "navigation completed",
+        "updated_at": "2026-08-29T12:00:00Z",
+    }
+    Draft202012Validator(command_schema).validate(command)
+    Draft202012Validator(status_schema, format_checker=FormatChecker()).validate(status)

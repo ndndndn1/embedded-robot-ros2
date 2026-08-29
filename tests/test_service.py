@@ -8,6 +8,7 @@ from embedded_robot_ros2.ports import ActionUpdate
 from embedded_robot_ros2.service import (
     AdapterError,
     ConflictError,
+    NotFoundError,
     RobotEdgeService,
     UnavailableError,
 )
@@ -174,5 +175,22 @@ async def test_protective_stop_cancels_active_motion() -> None:
         )
         assert service.command("motion").phase is CommandPhase.CANCELLED
         assert service.command("stop-motion").phase is CommandPhase.COMPLETED
+    finally:
+        await service.close()
+
+
+async def test_completed_history_is_bounded() -> None:
+    graph = MockRosGraph(action_delay_s=0)
+    service = RobotEdgeService(graph, max_command_records=2)
+    await service.start()
+    try:
+        for index in range(3):
+            await service.submit(command(f"bounded-{index}"))
+            await asyncio.sleep(0)
+            await asyncio.sleep(0)
+        with pytest.raises(NotFoundError, match="command not found"):
+            service.command("bounded-0")
+        assert service.command("bounded-2").phase is CommandPhase.COMPLETED
+        assert 'reason="bounded_history"' in service.metrics.render()
     finally:
         await service.close()

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+from collections import OrderedDict
 from dataclasses import dataclass
 
 from .metrics import Metrics
@@ -49,10 +50,19 @@ class _CommandRecord:
 
 
 class RobotEdgeService:
-    def __init__(self, transport: RosTransport, metrics: Metrics | None = None) -> None:
+    def __init__(
+        self,
+        transport: RosTransport,
+        metrics: Metrics | None = None,
+        *,
+        max_command_records: int = 10_000,
+    ) -> None:
+        if max_command_records < 1:
+            raise ValueError("max_command_records must be positive")
         self.transport = transport
         self.metrics = metrics or Metrics()
-        self._commands: dict[str, _CommandRecord] = {}
+        self._commands: OrderedDict[str, _CommandRecord] = OrderedDict()
+        self._max_command_records = max_command_records
         self._joints: dict[str, JointState] = {}
         self._safety: dict[str, SafetyState] = {}
         self._state_versions = dict.fromkeys(PROFILES, 0)
@@ -90,6 +100,7 @@ class RobotEdgeService:
                 self.metrics.increment("command_duplicate", kind=request.kind.value)
                 return existing.status.model_copy(deep=True)
             self._validate_request(request)
+            self._reserve_command_record()
             status = CommandStatus(
                 command_id=request.command_id,
                 robot_id=request.robot_id,
@@ -203,7 +214,8 @@ class RobotEdgeService:
             if update.phase in TERMINAL_PHASES:
                 self._active[record.status.robot_id] = None
                 if record.timer:
-                    record.timer.cancel()
+                    if record.timer is not asyncio.current_task():
+                        record.timer.cancel()
                     record.timer = None
             self.metrics.increment("status_update", phase=update.phase.value)
 
@@ -274,6 +286,16 @@ class RobotEdgeService:
         active = self._active[request.robot_id]
         if active and request.kind is not CommandKind.PROTECTIVE_STOP:
             raise ConflictError(f"robot already has active command {active}")
+
+    def _reserve_command_record(self) -> None:
+        if len(self._commands) < self._max_command_records:
+            return
+        for command_id, record in self._commands.items():
+            if record.status.phase in TERMINAL_PHASES:
+                del self._commands[command_id]
+                self.metrics.increment("command_evict", reason="bounded_history")
+                return
+        raise UnavailableError("command history capacity reached with active commands")
 
     @staticmethod
     def _request_hash(request: CommandRequest) -> str:
