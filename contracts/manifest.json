@@ -1,0 +1,9 @@
+{
+  "contract_version": "physical-robot-command.v1",
+  "canonicalization": "repository bytes as committed",
+  "sha256": {
+    "physical-robot-command.v1.schema.json": "40810182a9cf47d337fb6ecb6a78afc5651cbd390ce00757b1519c12ff888d3b",
+    "physical-robot-status.v1.schema.json": "85931d768aa9c8b31a9caed80c8e8be8deeb98367a5a9455f12311a077da2055"
+  }
+}
+
