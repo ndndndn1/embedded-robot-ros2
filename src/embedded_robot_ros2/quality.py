@@ -47,7 +47,12 @@ def check(root: Path) -> tuple[int, list[str]]:
 
 
 def main() -> None:
-    root = Path(__file__).resolve().parents[2]
+    checkout = Path.cwd()
+    root = (
+        checkout
+        if (checkout / "quality" / "scorecard.json").is_file()
+        else Path(__file__).resolve().parents[2]
+    )
     score, failures = check(root)
     print(f"quality_score={score}/100")
     if failures:
@@ -56,4 +61,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
