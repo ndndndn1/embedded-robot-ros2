@@ -1,0 +1,24 @@
+string camera_name
+string camera_frame
+string target_frame
+string target_id
+uint32 required_samples
+float32 max_reprojection_error_px
+---
+uint8 OK=0
+uint8 INVALID_GOAL=1
+uint8 INSUFFICIENT_SAMPLES=2
+uint8 REPROJECTION_ERROR=3
+uint8 CANCELLED=4
+uint8 INTERNAL_ERROR=255
+bool success
+string calibration_id
+geometry_msgs/TransformStamped extrinsics
+float32 rms_reprojection_error_px
+uint32 samples_used
+uint8 failure_code
+string detail
+---
+uint32 samples_collected
+uint32 samples_required
+float32 current_rms_reprojection_error_px
