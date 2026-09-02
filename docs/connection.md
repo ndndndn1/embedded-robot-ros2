@@ -10,8 +10,9 @@ Only required DDS discovery/data traffic and vendor traffic may cross an allow-l
 1. Verify the product (`mock-humanoid-mh-01` or `mock-mobile-manipulator-mm-01`) and
    compare advertised capabilities with the physical controller in a safe cell.
 2. Set a unique `ROS_DOMAIN_ID` in the inclusive range 0–232 for that cell.
-3. Use the exact instance namespace `/mh-01-a` or `/mm-01-a` and enable DDS localhost-only or discovery
-   server mode unless multi-host discovery is required.
+3. Map physical ID `mh-01-a` to ROS namespace `/mh_01_a` and `mm-01-a` to `/mm_01_a`.
+   Hyphens are retained in HTTP identifiers and TF frame strings but are invalid in ROS graph names.
+   Enable DDS localhost-only or discovery server mode unless multi-host discovery is required.
 4. Map `JointState`, `NavigateToPose`, `FollowJointTrajectory`, and the deployment's
    typed `SafetyState` to `RclpyTransport`; never map a boolean or free-form string to
    the safety topic.

@@ -1,0 +1,31 @@
+uint8 STAGE_LOOKUP=0
+uint8 STAGE_GEOMETRY=1
+uint8 STAGE_REACHABILITY=2
+string candidate_id
+string calibration_id
+uint64 scene_sequence
+builtin_interfaces/Duration max_scene_age
+float32 minimum_clearance_m
+bool require_reachability
+---
+uint8 OK=0
+uint8 CANDIDATE_NOT_FOUND=1
+uint8 STALE_SCENE=2
+uint8 CALIBRATION_MISMATCH=3
+uint8 TF_UNAVAILABLE=4
+uint8 POSE_UNCERTAIN=5
+uint8 COLLISION=6
+uint8 OUT_OF_WORKSPACE=7
+uint8 REACHABILITY_UNAVAILABLE=8
+uint8 IK_FAILED=9
+uint8 CANCELLED=10
+uint8 INTERNAL_ERROR=255
+bool valid
+uint8 reason_code
+string detail
+geometry_msgs/PoseStamped validated_pose
+float32 measured_clearance_m
+float32 pose_confidence
+---
+uint8 stage
+float32 progress

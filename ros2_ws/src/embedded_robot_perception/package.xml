@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>embedded_robot_perception</name>
+  <version>1.0.0</version>
+  <description>Bounded RGB-D alignment, 6DoF pose, calibration, and grasp validation for ROS 2 Jazzy.</description>
+  <maintainer email="maintainers@example.invalid">embedded-robot-ros2 maintainers</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>embedded_robot_interfaces</depend>
+  <depend>geometry_msgs</depend>
+  <depend>lifecycle_msgs</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+  <depend>rclcpp_components</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>sensor_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>vision_msgs</depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>

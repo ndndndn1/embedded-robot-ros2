@@ -1,0 +1,50 @@
+FROM ros:jazzy-ros-base@sha256:2589a8fba5257307857890173c069852c2abf913a0be7970f172478baecb09e4 AS ros2-builder
+
+ARG http_proxy
+ARG https_proxy
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      ros-jazzy-ament-cmake-gtest \
+      ros-jazzy-diagnostic-msgs \
+      ros-jazzy-rclcpp-components \
+      ros-jazzy-rclcpp-lifecycle \
+      ros-jazzy-tf2-ros \
+      ros-jazzy-vision-msgs \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /ws
+COPY ros2_ws/src ./src
+RUN . /opt/ros/jazzy/setup.sh \
+    && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+FROM ros2-builder AS ros2-test
+COPY tools/run_ros_graph_check.sh /usr/local/bin/run_ros_graph_check
+RUN chmod 0555 /usr/local/bin/run_ros_graph_check \
+    && . /opt/ros/jazzy/setup.sh \
+    && . /ws/install/setup.sh \
+    && colcon test --merge-install --event-handlers console_direct+ \
+    && colcon test-result --verbose \
+    && /usr/local/bin/run_ros_graph_check /ws/install
+
+FROM ros:jazzy-ros-base@sha256:2589a8fba5257307857890173c069852c2abf913a0be7970f172478baecb09e4 AS perception-cpu
+
+ARG http_proxy
+ARG https_proxy
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      ros-jazzy-diagnostic-msgs \
+      ros-jazzy-rclcpp-components \
+      ros-jazzy-rclcpp-lifecycle \
+      ros-jazzy-tf2-ros \
+      ros-jazzy-vision-msgs \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 10001 perception \
+    && useradd --system --uid 10001 --gid perception --home-dir /nonexistent perception
+COPY --from=ros2-builder /ws/install /opt/embedded_perception
+ENV ROS_DOMAIN_ID=62 \
+    RCUTILS_LOGGING_BUFFERED_STREAM=1
+USER 10001:10001
+WORKDIR /opt/embedded_perception
+CMD ["bash", "-lc", ". /opt/embedded_perception/setup.sh && exec ros2 launch embedded_robot_perception perception.launch.py"]

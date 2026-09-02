@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Protocol
 
 from .ports import ActionCallback, JointCallback, NavigateGoal, SafetyCallback, TrajectoryGoal
@@ -40,6 +41,11 @@ class RclpyTransport:
     def __init__(self, runtime: RosJazzyRuntime, *, namespace: str, domain_id: int) -> None:
         if not namespace.startswith("/"):
             raise ValueError("namespace must start with /")
+        if (
+            re.fullmatch(r"/(?:[A-Za-z_][A-Za-z0-9_]*)(?:/[A-Za-z_][A-Za-z0-9_]*)*", namespace)
+            is None
+        ):
+            raise ValueError("namespace must be a valid ROS name; map '-' in robot IDs to '_'")
         if not 0 <= domain_id <= 232:
             raise ValueError("ROS_DOMAIN_ID must be between 0 and 232")
         self._runtime = runtime
@@ -97,4 +103,3 @@ class RclpyTransport:
     def _ensure_connected(self) -> None:
         if not self._connected:
             raise ConnectionError("ROS graph is disconnected")
-

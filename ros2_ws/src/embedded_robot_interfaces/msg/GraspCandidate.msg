@@ -1,0 +1,11 @@
+std_msgs/Header header
+string candidate_id
+string detection_id
+string calibration_id
+uint64 scene_sequence
+geometry_msgs/Pose grasp_pose
+geometry_msgs/Vector3 approach
+float32 gripper_width_m
+float32 score
+float32 position_stddev_m
+float32 orientation_stddev_rad

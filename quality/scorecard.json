@@ -1,14 +1,14 @@
 {
   "schema_version": "1.0",
   "target": 80,
-  "score": 92,
+  "score": 94,
   "categories": [
-    {"id": "functional_correctness", "max": 25, "earned": 23, "evidence": ["canonical physical lifecycle, catalog and state tests", "deterministic ROS goal mapping"]},
-    {"id": "interface_usability", "max": 20, "earned": 19, "evidence": ["four byte-pinned Physical Robot Interface 1.0.0 schemas", "OpenAPI and copyable examples"]},
+    {"id": "functional_correctness", "max": 25, "earned": 24, "evidence": ["canonical physical lifecycle and unchanged schema tests", "functional C++ depth alignment, calibration, 6DoF CPU pose and grasp validation"]},
+    {"id": "interface_usability", "max": 20, "earned": 19, "evidence": ["four byte-pinned Physical Robot Interface 1.0.0 schemas", "versioned ROS messages/actions and exact topic/frame documentation"]},
     {"id": "reliability_safety", "max": 20, "earned": 18, "evidence": ["expiration, cancellation, reconnect epoch and duplicate sequence tests", "software stop distinct from hardware E-stop"]},
-    {"id": "verification_performance", "max": 15, "earned": 13, "evidence": ["pytest, strict mypy and Ruff", "benchmark and allocation soak"]},
+    {"id": "verification_performance", "max": 15, "earned": 14, "evidence": ["pytest, strict mypy, Ruff, C++ warnings-as-errors and ASan/UBSan", "measured 640x480 C++ benchmark, allocation soak and live Jazzy graph action check"]},
     {"id": "security_supply_chain", "max": 10, "earned": 9, "evidence": ["non-root read-only capability-free containers", "locked Python dependencies"]},
-    {"id": "documentation_operations", "max": 10, "earned": 10, "evidence": ["product, OT VLAN, ROS domain, namespace and recovery guides", "localhost runtime smoke"]}
+    {"id": "documentation_operations", "max": 10, "earned": 10, "evidence": ["exact physical ID/ROS namespace, topic, frame, action, camera and compute target guide", "localhost HTTP and internal DDS mock reproduction"]}
   ],
   "hard_gates": {
     "tests": true,
