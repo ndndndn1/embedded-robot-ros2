@@ -1,0 +1,84 @@
+services:
+  perception-cpu:
+    profiles: [perception-cpu, perception-mock]
+    build:
+      context: .
+      dockerfile: Dockerfile.ros2
+      target: perception-cpu
+    image: embedded-robot-perception:cpu-local
+    command:
+      - bash
+      - -lc
+      - >-
+        . /opt/embedded_perception/setup.sh && exec ros2 launch
+        embedded_robot_perception perception.launch.py
+        robot_id:=${ROBOT_ID:-mock-perception-01}
+        ros_namespace:=${ROS_NAMESPACE:-mock_perception_01}
+        backend:=cpu require_gpu:=false
+    read_only: true
+    tmpfs: [/tmp:size=64m,mode=1777]
+    shm_size: 512m
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    user: "10001:10001"
+    networks: [perception-dds]
+    restart: "no"
+
+  perception-fixture:
+    profiles: [perception-mock]
+    image: embedded-robot-perception:cpu-local
+    depends_on: [perception-cpu]
+    command:
+      - bash
+      - -lc
+      - >-
+        . /opt/embedded_perception/setup.sh && exec ros2 run
+        embedded_robot_perception mock_fixture_publisher --ros-args
+        -r __ns:=/${ROS_NAMESPACE:-mock_perception_01}
+        -p robot_id:=${ROBOT_ID:-mock-perception-01}
+    read_only: true
+    tmpfs: [/tmp:size=16m,mode=1777]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    user: "10001:10001"
+    networks: [perception-dds]
+    restart: "no"
+
+  perception-gpu-x86:
+    profiles: [perception-gpu-x86]
+    build:
+      context: .
+      dockerfile: Dockerfile.cuda
+      target: perception-gpu-x86
+    image: embedded-robot-perception:cuda-local
+    command:
+      - bash
+      - -lc
+      - >-
+        . /opt/embedded_perception/setup.sh && exec ros2 launch
+        embedded_robot_perception perception.launch.py
+        robot_id:=${ROBOT_ID:-mock-perception-01}
+        ros_namespace:=${ROS_NAMESPACE:-mock_perception_01}
+        backend:=cuda require_gpu:=true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+    read_only: true
+    tmpfs: [/tmp:size=64m,mode=1777]
+    shm_size: 512m
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    user: "10001:10001"
+    networks: [perception-dds]
+    restart: "no"
+
+networks:
+  perception-dds:
+    driver: bridge
+    internal: true

@@ -15,19 +15,44 @@ hardware emergency stop.
 
 | Robot ID | Product ID | Classification | Joints | ROS namespace |
 |---|---|---|---:|---|
-| `mh-01-a` | `mock-humanoid-mh-01` | Industrial humanoid | 12 | `/mh-01-a` |
-| `mm-01-a` | `mock-mobile-manipulator-mm-01` | Autonomous mobile manipulator | 6 | `/mm-01-a` |
+| `mh-01-a` | `mock-humanoid-mh-01` | Industrial humanoid | 12 | `/mh_01_a` |
+| `mm-01-a` | `mock-mobile-manipulator-mm-01` | Autonomous mobile manipulator | 6 | `/mm_01_a` |
 
 Both products support `navigate`, `manipulate`, and `protective_stop`. Inputs are the
 byte-pinned physical schemas under `contracts/`. Outputs use the exact canonical
 `ProductProfile`, `RobotState`, `CommandRecord`, and `{code,message}` error wire.
 
-The adapter maps to these ROS interfaces for each robot instance:
+Physical IDs retain hyphens in the HTTP contract. ROS graph names use an explicitly configured,
+valid namespace with underscores. The adapter maps to these ROS interfaces for each robot instance:
 
-- `/<robot_id>/joint_states` — `sensor_msgs/msg/JointState`
-- `/<robot_id>/navigate_to_pose` — `nav2_msgs/action/NavigateToPose`
-- `/<robot_id>/follow_joint_trajectory` — `control_msgs/action/FollowJointTrajectory`
-- `/<robot_id>/safety_state` — deployment-provided typed `SafetyState`
+- `/<ros_namespace>/joint_states` — `sensor_msgs/msg/JointState`
+- `/<ros_namespace>/navigate_to_pose` — `nav2_msgs/action/NavigateToPose`
+- `/<ros_namespace>/follow_joint_trajectory` — `control_msgs/action/FollowJointTrajectory`
+- `/<ros_namespace>/safety_state` — deployment-provided typed `SafetyState`
+
+## RGB-D perception workspace
+
+`ros2_ws/` adds ROS 2 Jazzy C++20 packages for bounded RGB/depth synchronization,
+`CameraInfo`, TF2 frame alignment, `PointCloud2`, calibration provenance, 6DoF pose,
+and fail-closed grasp validation. The CPU backend is the complete reference path. CUDA is an
+optional plugin and cannot silently satisfy `require_gpu=true` when its runtime self-test fails.
+
+Run the hardware-free checks:
+
+```bash
+./tools/run_cpp_checks.sh
+docker build --target ros2-test -f Dockerfile.ros2 -t embedded-robot-perception:test .
+```
+
+Run the isolated mock ROS graph:
+
+```bash
+docker compose -f compose.perception.yaml --profile perception-mock up --build
+docker compose -f compose.perception.yaml --profile perception-mock down
+```
+
+See [perception interfaces and operation](docs/perception.md) for exact topics, frames,
+actions, device targets, backend rules, and production prerequisites.
 
 ## Run the deterministic mock
 
@@ -56,5 +81,6 @@ it with different content returns HTTP 409. No legacy `kind`, `payload`, `ttl_ms
 uppercase profile-as-robot IDs, or `/state` route is accepted.
 
 See [real adapter connection](docs/connection.md),
+[perception interfaces](docs/perception.md),
 [requirements](docs/enterprise-requirements.md), and
 [quality score](docs/quality-scorecard.md) before deployment.

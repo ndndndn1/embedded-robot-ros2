@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "fixture_id": "red-cuboid-64x48-v1",
+  "robot_id": "mock-perception-01",
+  "ros_namespace": "/mock_perception_01",
+  "camera": {
+    "name": "front_rgbd",
+    "serial": "MOCK-D455-0001",
+    "width": 64,
+    "height": 48,
+    "fps": 10,
+    "fx": 80.0,
+    "fy": 80.0,
+    "depth_m": 0.8,
+    "depth_encoding": "16UC1",
+    "color_encoding": "rgb8"
+  },
+  "frames": {
+    "base": "mock-perception-01/base_link",
+    "color": "mock-perception-01/front_rgbd_color_optical_frame",
+    "depth": "mock-perception-01/front_rgbd_depth_optical_frame"
+  },
+  "object": {
+    "model_id": "red-cuboid-v1",
+    "color_rgb": [220, 20, 20],
+    "pixel_bounds_fraction": [0.333333, 0.333333, 0.666667, 0.666667]
+  },
+  "calibration": {
+    "target_id": "mock-charuco-7x5",
+    "reprojection_error_px": 0.4,
+    "minimum_samples": 3,
+    "production_samples": 30
+  },
+  "expected": {
+    "backend": "cpu",
+    "detection_count": 1,
+    "grasp_candidate_count": 1,
+    "calibration_success": true
+  }
+}

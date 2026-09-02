@@ -38,6 +38,6 @@ def generate_launch_description() -> LaunchDescription:
                 executable="component_container_mt",
                 composable_node_descriptions=[component],
                 output="screen",
-            )
+            ),
         ]
     )

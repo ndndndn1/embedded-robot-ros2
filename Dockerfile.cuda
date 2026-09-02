@@ -1,0 +1,55 @@
+FROM nvidia/cuda:12.6.3-devel-ubuntu24.04@sha256:392c0df7b577ecae17a17f6ba7f2009c217bb4422f8431c053ae9af61a8c148a AS cuda-builder
+
+ARG http_proxy
+ARG https_proxy
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl \
+    && curl -fsSL -o /tmp/ros2-apt-source.deb \
+      https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.1.0/ros2-apt-source_1.1.0.noble_all.deb \
+    && dpkg -i /tmp/ros2-apt-source.deb \
+    && rm /tmp/ros2-apt-source.deb \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+      python3-colcon-common-extensions \
+      ros-jazzy-ament-cmake-gtest \
+      ros-jazzy-diagnostic-msgs \
+      ros-jazzy-rclcpp-components \
+      ros-jazzy-rclcpp-lifecycle \
+      ros-jazzy-ros-base \
+      ros-jazzy-tf2-ros \
+      ros-jazzy-vision-msgs \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /ws
+COPY ros2_ws/src ./src
+RUN . /opt/ros/jazzy/setup.sh \
+    && colcon build --merge-install --cmake-args \
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_CUDA=ON -DENABLE_TENSORRT=OFF
+
+FROM nvidia/cuda:12.6.3-runtime-ubuntu24.04@sha256:92906d87596d638d35015c6353053121bd299d25943b875763321653884ba924 AS perception-gpu-x86
+
+ARG http_proxy
+ARG https_proxy
+ENV DEBIAN_FRONTEND=noninteractive
+COPY --from=cuda-builder /etc/apt/sources.list.d/ros2.sources /etc/apt/sources.list.d/ros2.sources
+COPY --from=cuda-builder /usr/share/keyrings/ros-apt-source-keyring.gpg /usr/share/keyrings/ros-apt-source-keyring.gpg
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      ros-jazzy-diagnostic-msgs \
+      ros-jazzy-rclcpp-components \
+      ros-jazzy-rclcpp-lifecycle \
+      ros-jazzy-ros-base \
+      ros-jazzy-tf2-ros \
+      ros-jazzy-vision-msgs \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 10001 perception \
+    && useradd --system --uid 10001 --gid perception --home-dir /nonexistent perception
+COPY --from=cuda-builder /ws/install /opt/embedded_perception
+ENV NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    ROS_DOMAIN_ID=62 \
+    RCUTILS_LOGGING_BUFFERED_STREAM=1
+USER 10001:10001
+WORKDIR /opt/embedded_perception
+CMD ["bash", "-lc", ". /opt/embedded_perception/setup.sh && exec ros2 launch embedded_robot_perception perception.launch.py backend:=cuda require_gpu:=true"]

@@ -9,7 +9,10 @@
     {"requirement_id": "SAFE-01", "kind": "required", "technical": true, "coverage": "full", "evidence": ["src/embedded_robot_ros2/models.py", "docs/connection.md"], "tests": ["tests/test_service.py::test_protective_stop_is_software_state_not_hardware_estop"]},
     {"requirement_id": "OPS-01", "kind": "required", "technical": true, "coverage": "full", "evidence": ["Dockerfile", "compose.yaml", "smoke.py"], "tests": ["docker compose run --rm --build test", "python3 smoke.py"]},
     {"requirement_id": "PERF-01", "kind": "required", "technical": true, "coverage": "full", "evidence": ["bench/benchmark.py", "bench/soak.py", "docs/benchmark.md"], "tests": ["uv run python bench/benchmark.py --iterations 1000", "uv run python bench/soak.py --iterations 5000 --max-growth-kib 12000"]},
-    {"requirement_id": "DOC-01", "kind": "required", "technical": false, "coverage": "full", "evidence": ["README.md", "docs/connection.md", "docs/enterprise-requirements.md"], "tests": ["python3 smoke.py"]}
+    {"requirement_id": "DOC-01", "kind": "required", "technical": false, "coverage": "full", "evidence": ["README.md", "docs/connection.md", "docs/enterprise-requirements.md", "docs/perception.md"], "tests": ["python3 smoke.py"]},
+    {"requirement_id": "VISION-01", "kind": "required", "technical": true, "coverage": "full", "evidence": ["ros2_ws/src/embedded_robot_perception/src/frame_aligner.cpp", "ros2_ws/src/embedded_robot_perception/src/perception_node.cpp"], "tests": ["tools/run_cpp_checks.sh", "tools/run_ros_graph_check.sh"]},
+    {"requirement_id": "VISION-02", "kind": "required", "technical": true, "coverage": "full", "evidence": ["ros2_ws/src/embedded_robot_perception/src/cpu_pose_backend.cpp", "ros2_ws/src/embedded_robot_perception/src/grasp_validator.cpp"], "tests": ["ros2_ws/src/embedded_robot_perception/test/core_test.cpp"]},
+    {"requirement_id": "VISION-03", "kind": "required", "technical": true, "coverage": "full", "evidence": ["ros2_ws/src/embedded_robot_interfaces", "fixtures/perception/red_cuboid_scene.json"], "tests": ["tests/test_perception_assets.py"]},
+    {"requirement_id": "ACCEL-01", "kind": "optional", "technical": true, "coverage": "boundary", "evidence": ["ros2_ws/src/embedded_robot_perception/src/cuda/cuda_pose_backend.cu", "Dockerfile.cuda"], "tests": ["CPU build rejects require_gpu; CUDA runtime validation deferred until host NVML is healthy"]}
   ]
 }
-

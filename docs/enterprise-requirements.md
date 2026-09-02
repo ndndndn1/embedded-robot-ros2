@@ -15,6 +15,14 @@
 | O-01 | Expose health and low-cardinality metrics | API tests |
 | P-01 | Demonstrate bounded latency and no live background tasks | Benchmark and soak scripts |
 | U-01 | Explain product, network, namespace, topics/actions, and replacement steps | README and connection guide |
+| V-01 | Align RGB/depth to color geometry and publish bounded `32FC1`/PointCloud2 outputs | C++ core test and live Jazzy graph check |
+| V-02 | Produce a deterministic 6DoF pose with covariance through a replaceable backend | keypoint/PCA tests and `Detection3DArray` output |
+| V-03 | Bind every grasp to scene, calibration, and model provenance | versioned messages and action checks |
+| V-04 | Reject stale, colliding, uncertain, unreachable, or calibration-mismatched grasps | C++ fail-closed validation tests |
+| V-05 | Aggregate calibration samples and issue canonical SHA-256 identity only within error limits | calibration test and live action check |
+| V-06 | Keep a complete CPU path and fail explicit GPU requirements when CUDA self-test fails | selector tests and lifecycle configure gate |
+| V-07 | Keep all perception queues, fixture history, device buffers, and retained scenes bounded | source inspection, sanitizers, benchmark, soak |
+| V-08 | Separate valid ROS namespace from hyphenated physical robot ID | runtime validation and boundary tests |
 
 Out of scope: certified functional safety, motor control, vendor-specific protocol
-drivers, motion planning, and automatic production enablement.
+drivers, TensorRT model authoring, motion-plan execution, and automatic production enablement.

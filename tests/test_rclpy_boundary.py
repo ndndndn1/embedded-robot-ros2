@@ -1,5 +1,7 @@
 from typing import Any
 
+import pytest
+
 from embedded_robot_ros2.rclpy_adapter import RclpyTransport
 
 
@@ -33,12 +35,17 @@ async def no_op(*args: Any) -> None:
 
 async def test_rclpy_boundary_binds_exact_names_and_domain() -> None:
     runtime = RecordingRuntime()
-    transport = RclpyTransport(runtime, namespace="/mm-01-a", domain_id=42)
+    transport = RclpyTransport(runtime, namespace="/mm_01_a", domain_id=42)
     await transport.connect(no_op, no_op, no_op)
-    assert runtime.connection["joint_topic"] == "/mm-01-a/joint_states"
-    assert runtime.connection["navigation_action"] == "/mm-01-a/navigate_to_pose"
-    assert runtime.connection["trajectory_action"] == "/mm-01-a/follow_joint_trajectory"
-    assert runtime.connection["safety_topic"] == "/mm-01-a/safety_state"
+    assert runtime.connection["joint_topic"] == "/mm_01_a/joint_states"
+    assert runtime.connection["navigation_action"] == "/mm_01_a/navigate_to_pose"
+    assert runtime.connection["trajectory_action"] == "/mm_01_a/follow_joint_trajectory"
+    assert runtime.connection["safety_topic"] == "/mm_01_a/safety_state"
     assert runtime.connection["domain_id"] == 42
     await transport.close()
     assert runtime.disconnected
+
+
+def test_rclpy_boundary_rejects_physical_id_as_invalid_ros_namespace() -> None:
+    with pytest.raises(ValueError, match="valid ROS name"):
+        RclpyTransport(RecordingRuntime(), namespace="/mm-01-a", domain_id=42)
